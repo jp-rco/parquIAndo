@@ -4,32 +4,36 @@ import { Navigation, ArrowLeft, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ── World dimensions ──────────────────────────────────────────────────────────
-const SW = 130, SH = 80, SGAP = 22, N = 13, TOP = 100;
+const SW = 130, SH = 80, SGAP = 22, N = 13;
 const LX = 8;
-const LANE_L = LX + SW + 18;   // 156
-const LANE_R = LANE_L + 110;   // 266
-const RX = LANE_R + 18;        // 284
+const LANE_L = LX + SW + 18;
+const LANE_R = LANE_L + 110;
+const RX = LANE_R + 18;
 const WW = RX + SW + 8;        // 422
-const WH = TOP + N * (SH + SGAP) + 420;
-const CX = (LANE_L + LANE_R) / 2; // lane center X
+const CX = (LANE_L + LANE_R) / 2;
 
-// ── Slot data (index 3 = target, must be free) ────────────────────────────────
+// Slots start at y=0 and go downward
 const OCC_L = [1,1,1,0,1,1,0,1,1,0,1,1,1];
 const OCC_R = [1,0,1,1,1,0,1,0,1,1,1,0,1];
 const mkSlots = (occ: number[], x: number) =>
-  occ.map((o, i) => ({ id: `${x === LX ? 'L' : 'R'}${i + 1}`, x, y: TOP + i * (SH + SGAP), occ: !!o, target: x === LX && i === 3 }));
+  occ.map((o, i) => ({ id: `${x === LX ? 'L' : 'R'}${i + 1}`, x, y: i * (SH + SGAP), occ: !!o, target: x === LX && i === 3 }));
 const leftSlots  = mkSlots(OCC_L, LX);
 const rightSlots = mkSlots(OCC_R, RX);
 const allSlots   = [...leftSlots, ...rightSlots];
 
-// ── Target slot ───────────────────────────────────────────────────────────────
+// Target slot is index 3 on the left
 const T = leftSlots[3];
 const TCY = T.y + SH / 2;
-const CAR_Y_WORLD = WH - 220;
-const SCROLL_TOTAL = CAR_Y_WORLD - TCY - 140;
+// Total world height
+const WH = N * (SH + SGAP) + 200;
 
-// SVG route: straight up lane → turn left into slot
-const ROUTE = `M ${CX} ${CAR_Y_WORLD} L ${CX} ${TCY} L ${T.x + SW} ${TCY}`;
+// The route goes from the BOTTOM of the world (car entry point) to the target
+const ENTRY_Y = WH - 60;
+const ROUTE = `M ${CX} ${ENTRY_Y} L ${CX} ${TCY} L ${T.x + SW} ${TCY}`;
+
+// How much the world must scroll:
+// At progress=0 the entry point is visible at bottom; at progress=100 the target is at "car level"
+const SCROLL_TOTAL = ENTRY_Y - TCY - 80;
 
 // ── Slot 3D component ─────────────────────────────────────────────────────────
 function Slot({ slot }: { slot: typeof allSlots[0] }) {
@@ -99,8 +103,9 @@ export default function NavigationMode() {
     );
   }
 
-  const worldY = -(progress / 100) * SCROLL_TOTAL;
-  // Car X: moves from lane center to target slot center when > 80%
+  // World moves DOWN (positive Y) as progress → slots slide toward the fixed car at bottom
+  const worldY = (progress / 100) * SCROLL_TOTAL;
+  // Car X offset for the turn: when progress > 80%, nudge car toward slot
   const carX_offset = progress > 80 ? -((progress - 80) / 20) * (CX - (T.x + SW / 2)) : 0;
   const distance = Math.max(0, Math.round(50 - (progress / 100) * 50));
   const instruction =
@@ -138,17 +143,20 @@ export default function NavigationMode() {
       </motion.div>
 
       {/* ── 3D perspective viewport ── */}
-      <div className="flex-1 relative overflow-hidden" style={{ perspective: '700px', perspectiveOrigin: '50% 100%' }}>
+      {/* GPS-style view: camera at bottom center, world tilts back from horizon */}
+      <div className="flex-1 relative overflow-hidden" style={{ perspective: '500px', perspectiveOrigin: '50% 100%' }}>
 
-        {/* World */}
+        {/* ── Scrolling world (only the parking lot floor) ── */}
         <div
           className="absolute left-1/2"
           style={{
             width: WW, height: WH,
             marginLeft: -WW / 2,
-            top: '38%',
-            transformOrigin: '50% 0%',
-            transform: `rotateX(54deg) translateY(${worldY}px)`,
+            // Start so the entry point (bottom of world) is at the bottom of viewport
+            bottom: '0%',
+            top: 'auto',
+            transformOrigin: '50% 100%',
+            transform: `rotateX(55deg) translateY(${worldY}px)`,
           }}
         >
           {/* Floor */}
@@ -176,30 +184,33 @@ export default function NavigationMode() {
             />
           </svg>
 
-          {/* Ego car */}
-          <div
-            className="absolute z-20 transition-all duration-300"
-            style={{
-              width: 68, height: 110,
-              left: CX - 34 - carX_offset,
-              top: CAR_Y_WORLD - 55,
-            }}
-          >
-            {/* Body */}
-            <div className="w-full h-full bg-slate-800 rounded-t-[34px] rounded-b-xl relative overflow-hidden"
-              style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.4), inset 0 8px 24px rgba(255,255,255,0.12)' }}>
-              {/* Roof glass */}
-              <div className="absolute top-6 left-3 right-3 h-14 bg-slate-900 rounded-t-[20px] rounded-b-lg" />
-              {/* Left brake light */}
-              <div className="absolute bottom-2 left-2.5 w-5 h-2 bg-red-500 rounded-full"
-                style={{ boxShadow: '0 0 10px 3px rgba(239,68,68,0.7)' }} />
-              {/* Right brake light */}
-              <div className="absolute bottom-2 right-2.5 w-5 h-2 bg-red-500 rounded-full"
-                style={{ boxShadow: '0 0 10px 3px rgba(239,68,68,0.7)' }} />
-            </div>
+          {/* ── Fixed ego car (NOT part of world, sits on top of viewport) ── */}
+        </div>
+
+        {/* Ego car — fixed at bottom center of viewport, outside the scrolling world */}
+        <div
+          className="absolute z-20 transition-all duration-300"
+          style={{
+            width: 68, height: 110,
+            left: `calc(50% - 34px + ${carX_offset}px)`,
+            bottom: '8%',
+          }}
+        >
+          {/* Body */}
+          <div className="w-full h-full bg-slate-800 rounded-t-[34px] rounded-b-xl relative overflow-hidden"
+            style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.4), inset 0 8px 24px rgba(255,255,255,0.12)' }}>
+            {/* Roof glass */}
+            <div className="absolute top-6 left-3 right-3 h-14 bg-slate-900 rounded-t-[20px] rounded-b-lg" />
+            {/* Left headlight */}
+            <div className="absolute top-2 left-2.5 w-5 h-2 bg-yellow-200 rounded-full"
+              style={{ boxShadow: '0 0 10px 4px rgba(254,240,138,0.8)' }} />
+            {/* Right headlight */}
+            <div className="absolute top-2 right-2.5 w-5 h-2 bg-yellow-200 rounded-full"
+              style={{ boxShadow: '0 0 10px 4px rgba(254,240,138,0.8)' }} />
           </div>
         </div>
-      </div>
+
+      </div>{/* end perspective viewport */}
 
       {/* Bottom HUD */}
       <div className="relative z-30 bg-white/90 backdrop-blur-md border-t border-slate-200 px-6 py-4">

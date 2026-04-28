@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getAIParkingRecommendation } from '../data/mockData';
 import type { ParkingLot } from '../data/mockData';
 import MapComponent from '../components/MapComponent';
-import { BrainCircuit, Navigation, ArrowLeft, MoreHorizontal } from 'lucide-react';
+import { BrainCircuit, Navigation, ArrowLeft, MoreHorizontal, MapPin, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 
@@ -15,6 +15,7 @@ export default function Results() {
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState<ParkingLot[]>([]);
   const [selected, setSelected] = useState<ParkingLot | null>(null);
+  const [mapsOpened, setMapsOpened] = useState(false);
 
   useEffect(() => {
     getAIParkingRecommendation(destination).then(data => {
@@ -171,13 +172,54 @@ export default function Results() {
                     </div>
                   </div>
 
-                  <button 
-                    onClick={() => navigate(`/navigation?parking=${encodeURIComponent(selected.name)}&dest=${encodeURIComponent(destination)}`)}
-                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-5 rounded-[24px] font-black text-xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-emerald-200 active:scale-95"
-                  >
-                    Ir ahora
-                    <Navigation className="h-6 w-6" />
-                  </button>
+                  {!mapsOpened ? (
+                    <button
+                      onClick={() => {
+                        // Coordenadas de la Universidad de La Sabana
+                        const coords = '4.8635,-74.0307';
+                        const label = encodeURIComponent(selected.name);
+                        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${coords}&destination_place_id=${label}&travelmode=driving`;
+                        window.open(mapsUrl, '_blank');
+                        setMapsOpened(true);
+                      }}
+                      className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-5 rounded-[24px] font-black text-xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-emerald-200 active:scale-95"
+                    >
+                      Ir ahora
+                      <Navigation className="h-6 w-6" />
+                    </button>
+                  ) : (
+                    <motion.div
+                      initial={{ scale: 0.95, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="flex flex-col gap-3"
+                    >
+                      {/* Banner: Maps abierto */}
+                      <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3">
+                        <MapPin className="h-5 w-5 text-emerald-600 shrink-0" />
+                        <p className="text-sm font-bold text-emerald-700 flex-1">Google Maps abierto — sigue la ruta hasta el parqueadero</p>
+                      </div>
+                      {/* Botón principal: Entrando al parqueadero */}
+                      <button
+                        onClick={() => navigate(`/navigation?parking=${encodeURIComponent(selected.name)}&dest=${encodeURIComponent(destination)}`)}
+                        className="w-full bg-slate-900 hover:bg-slate-800 text-white py-5 rounded-[24px] font-black text-lg flex items-center justify-center gap-3 transition-all shadow-xl active:scale-95"
+                      >
+                        <span>Entrando al parqueadero</span>
+                        <ChevronRight className="h-6 w-6" />
+                      </button>
+                      {/* Volver a Maps */}
+                      <button
+                        onClick={() => {
+                          const coords = '4.8635,-74.0307';
+                          const label = encodeURIComponent(selected.name);
+                          window.open(`https://www.google.com/maps/dir/?api=1&destination=${coords}&destination_place_id=${label}&travelmode=driving`, '_blank');
+                        }}
+                        className="w-full border-2 border-slate-200 text-slate-600 py-3 rounded-[20px] font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-all active:scale-95"
+                      >
+                        <MapPin className="h-4 w-4" />
+                        Volver a Maps
+                      </button>
+                    </motion.div>
+                  )}
                 </div>
               </motion.div>
             )}
