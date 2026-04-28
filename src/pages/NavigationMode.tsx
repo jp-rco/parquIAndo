@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Navigation, ArrowLeft, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Navigation, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ── World dimensions ──────────────────────────────────────────────────────────
@@ -76,13 +76,10 @@ export default function NavigationMode() {
   const navigate = useNavigate();
   const parkingName = searchParams.get('parking') || 'Parqueadero B';
   const dest        = searchParams.get('dest') || '';
-  const isSabana    = dest.toLowerCase().includes('sabana') || !dest;
-
   const [progress, setProgress] = useState(0);
   const [arrived,  setArrived]  = useState(false);
 
   useEffect(() => {
-    if (!isSabana) return;
     const t = setInterval(() => {
       setProgress(p => {
         if (p >= 100) { clearInterval(t); setTimeout(() => setArrived(true), 800); return 100; }
@@ -90,18 +87,7 @@ export default function NavigationMode() {
       });
     }, 60);
     return () => clearInterval(t);
-  }, [isSabana]);
-
-  if (!isSabana) {
-    return (
-      <div className="h-full w-full flex flex-col items-center justify-center p-6 text-center bg-slate-100">
-        <ShieldAlert className="h-16 w-16 text-amber-500 mb-4" />
-        <h2 className="text-2xl font-black text-slate-800 mb-2">Vista 3D no disponible</h2>
-        <p className="text-slate-500 mb-6">Solo disponible para la Universidad de La Sabana.</p>
-        <button onClick={() => navigate(-1)} className="bg-slate-900 text-white px-8 py-3 rounded-full font-bold">Volver</button>
-      </div>
-    );
-  }
+  }, []);
 
   // World moves DOWN (positive Y) as progress → slots slide toward the fixed car at bottom
   const worldY = (progress / 100) * SCROLL_TOTAL;

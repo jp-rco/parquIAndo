@@ -175,10 +175,9 @@ export default function Results() {
                   {!mapsOpened ? (
                     <button
                       onClick={() => {
-                        // Coordenadas de la Universidad de La Sabana
-                        const coords = '4.8635,-74.0307';
-                        const label = encodeURIComponent(selected.name);
-                        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${coords}&destination_place_id=${label}&travelmode=driving`;
+                        // Use the destination name so Maps searches for the real place
+                        const dest = encodeURIComponent(destination);
+                        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
                         window.open(mapsUrl, '_blank');
                         setMapsOpened(true);
                       }}
@@ -198,7 +197,7 @@ export default function Results() {
                         <MapPin className="h-5 w-5 text-emerald-600 shrink-0" />
                         <p className="text-sm font-bold text-emerald-700 flex-1">Google Maps abierto — sigue la ruta hasta el parqueadero</p>
                       </div>
-                      {/* Botón principal: Entrando al parqueadero */}
+                      {/* Botón: Entrando al parqueadero */}
                       <button
                         onClick={() => navigate(`/navigation?parking=${encodeURIComponent(selected.name)}&dest=${encodeURIComponent(destination)}`)}
                         className="w-full bg-slate-900 hover:bg-slate-800 text-white py-5 rounded-[24px] font-black text-lg flex items-center justify-center gap-3 transition-all shadow-xl active:scale-95"
@@ -209,9 +208,8 @@ export default function Results() {
                       {/* Volver a Maps */}
                       <button
                         onClick={() => {
-                          const coords = '4.8635,-74.0307';
-                          const label = encodeURIComponent(selected.name);
-                          window.open(`https://www.google.com/maps/dir/?api=1&destination=${coords}&destination_place_id=${label}&travelmode=driving`, '_blank');
+                          const dest = encodeURIComponent(destination);
+                          window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`, '_blank');
                         }}
                         className="w-full border-2 border-slate-200 text-slate-600 py-3 rounded-[20px] font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-all active:scale-95"
                       >
