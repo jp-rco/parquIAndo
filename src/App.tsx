@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Home from './pages/Home';
 import Results from './pages/Results';
 import OperatorPanel from './pages/OperatorPanel';
+import NavigationMode from './pages/NavigationMode';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/results" element={<Results />} />
+            <Route path="/navigation" element={<NavigationMode />} />
             <Route path="/operator" element={<OperatorPanel />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

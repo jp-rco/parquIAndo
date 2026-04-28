@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Menu, Settings, Mic, CarFront } from 'lucide-react';
+import { Search, Menu, Mic, CarFront, BarChart3 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import MapComponent from '../components/MapComponent';
-import { parkingLots } from '../data/mockData';
 
 export default function Home() {
   const [destination, setDestination] = useState('');
@@ -86,14 +85,18 @@ export default function Home() {
                 </div>
                 <span className="text-sm font-bold text-slate-700">La Sabana</span>
               </button>
-              <button className="flex flex-col items-center gap-2 p-4 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-colors border border-transparent">
+              <button 
+                onClick={() => navigate('/operator')}
+                className="flex flex-col items-center gap-2 p-4 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-colors border border-transparent"
+              >
                 <div className="h-12 w-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-600">
-                  <Settings className="h-6 w-6" />
+                  <BarChart3 className="h-6 w-6" />
                 </div>
-                <span className="text-sm font-bold text-slate-700">Configurar</span>
+                <span className="text-sm font-bold text-slate-700">Operador</span>
               </button>
             </div>
           </motion.div>
+
         </div>
       </div>
     </div>

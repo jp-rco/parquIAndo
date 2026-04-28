@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getAIParkingRecommendation } from '../data/mockData';
 import type { ParkingLot } from '../data/mockData';
 import MapComponent from '../components/MapComponent';
-import { BrainCircuit, Navigation, ArrowLeft, MoreHorizontal, Info } from 'lucide-react';
+import { BrainCircuit, Navigation, ArrowLeft, MoreHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 
@@ -171,15 +171,13 @@ export default function Results() {
                     </div>
                   </div>
 
-                  <a 
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${selected.lat},${selected.lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button 
+                    onClick={() => navigate(`/navigation?parking=${encodeURIComponent(selected.name)}&dest=${encodeURIComponent(destination)}`)}
                     className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-5 rounded-[24px] font-black text-xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-emerald-200 active:scale-95"
                   >
                     Ir ahora
                     <Navigation className="h-6 w-6" />
-                  </a>
+                  </button>
                 </div>
               </motion.div>
             )}

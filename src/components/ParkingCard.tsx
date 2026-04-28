@@ -11,9 +11,9 @@ interface Props {
 
 export default function ParkingCard({ parking, isSelected, onClick }: Props) {
   const isRecommended = parking.recommended;
-  
+
   const getStatusColor = (risk: string) => {
-    switch(risk) {
+    switch (risk) {
       case 'Bajo': return 'text-emerald-600 bg-emerald-100 border-emerald-200';
       case 'Medio': return 'text-amber-600 bg-amber-100 border-amber-200';
       case 'Alto': return 'text-rose-600 bg-rose-100 border-rose-200';
@@ -28,14 +28,14 @@ export default function ParkingCard({ parking, isSelected, onClick }: Props) {
   };
 
   return (
-    <motion.div 
+    <motion.div
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={clsx(
         "relative p-5 rounded-2xl cursor-pointer transition-all border-2 text-left w-full",
-        isSelected 
-          ? isRecommended ? "border-emerald-500 shadow-emerald-100 shadow-lg bg-white" : "border-slate-800 shadow-lg bg-white" 
+        isSelected
+          ? isRecommended ? "border-emerald-500 shadow-emerald-100 shadow-lg bg-white" : "border-slate-800 shadow-lg bg-white"
           : "border-slate-100 bg-white/80 hover:bg-white hover:border-slate-300 hover:shadow-md"
       )}
     >
@@ -66,7 +66,7 @@ export default function ParkingCard({ parking, isSelected, onClick }: Props) {
           <span className="font-bold text-slate-800">{parking.availableSpaces} cupos</span>
         </div>
         <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-          <div 
+          <div
             className={clsx("h-2 rounded-full", getProgressColor(parking.occupancy))}
             style={{ width: `${parking.occupancy}%` }}
           ></div>
@@ -81,7 +81,7 @@ export default function ParkingCard({ parking, isSelected, onClick }: Props) {
       </div>
 
       {isSelected && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between"
@@ -91,7 +91,7 @@ export default function ParkingCard({ parking, isSelected, onClick }: Props) {
             <p className="text-slate-500">Posible espera: <span className="font-medium text-slate-800">{parking.waitTime}</span></p>
           </div>
           <div className="h-8 w-8 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-sm">
-             <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-5 w-5" />
           </div>
         </motion.div>
       )}
